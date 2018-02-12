@@ -3,12 +3,15 @@ set -e
 
 export VERBOSE=${VERBOSE:-1}
 export REMOTEPORT=${REMOTEPORT:-2222}
+export REMOTE_UDT=${REMOTE_UDT:-9000}
+export LOCAL_UDT=${LOCAL_UDT:-9000}
+export SSHD_PORT=${SSHD_PORT:-2222}
 
 cat > /etc/udrd.conf <<EOM
 address = 0.0.0.0
-server port = 9000
-start port = 9000
-end port = 9100
+server port = ${LOCAL_UDT}
+start port = ${REMOTE_UDT}
+end port = ${REMOTE_UDT}
 log file = /tmp/udr.log
 pid file = /tmp/udr.pid
 log level = DEBUG
@@ -43,7 +46,7 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///run/supervisord.sock
 
 [program:sshd]
-command=/usr/sbin/sshd -D -e
+command=/usr/sbin/sshd -D -e -p ${SSHD_PORT}
 stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
 redirect_stderr=true
@@ -69,7 +72,7 @@ Host ${REMOTEHOST}
 	StrictHostKeyChecking no
 EOM
 
-	exec /bin/udr -P ${REMOTEPORT} -c /bin/udr -v -l root rsync -avz /workspace ${REMOTEHOST}:/workspace/
+	exec /bin/udr -a ${LOCAL_UDT} -b ${REMOTE_UDT} -c /bin/udr -P ${REMOTEPORT} -v -l root rsync -avz /workspace ${REMOTEHOST}:/workspace/
 fi
 
 if [ "$1" = "daemon" ]; then

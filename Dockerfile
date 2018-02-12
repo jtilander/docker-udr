@@ -14,6 +14,7 @@ RUN mkdir -p /usr/src/udr \
 	&& make -e os=LINUX arch=AMD64
 
 
+
 FROM alpine:3.7
 
 RUN apk --no-cache add \
@@ -29,7 +30,7 @@ RUN apk --no-cache add \
 		supervisor \
 		tini
 
-RUN mkdir /udr
+RUN mkdir -p /udr /workspace /root/.ssh
 
 COPY --from=builder /usr/src/udr/src/udr /bin/
 COPY --from=builder /usr/src/udr/server/daemon.py /udr/
@@ -42,7 +43,6 @@ COPY docker-entrypoint.sh /
 
 ENV KEYS_URL https://github.com/jtilander.keys
 
-RUN mkdir -p /workspace /root/.ssh
 WORKDIR /workspace
 
 EXPOSE 22
