@@ -9,7 +9,7 @@ RUN apk --no-cache add \
 		openssl-dev
 
 RUN mkdir -p /usr/src/udr \
-	&& git clone https://github.com/LabAdvComp/UDR.git /usr/src/udr \
+	&& git clone https://github.com/jtilander/UDR.git /usr/src/udr \
 	&& cd /usr/src/udr \
 	&& make -e os=LINUX arch=AMD64
 
